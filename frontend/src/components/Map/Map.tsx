@@ -1,7 +1,7 @@
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import "./map.css";
+import "./Map.css";
 
 const fireEmojiIcon = new L.DivIcon({
   html: "🔥",
