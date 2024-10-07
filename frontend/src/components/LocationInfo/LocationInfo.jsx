@@ -10,7 +10,7 @@ function LocationInfo({ setLocationData }) {
     const fetchLocation = async () => {
       try {
         const response = await axios.get(`https://ipinfo.io/json?token=${token}`);
-        const { city, region, country, loc } = response.data;
+        const { city, region, country, loc, timezone } = response.data;
         const [latitude, longitude] = loc.split(",");
 
         setLocation({
@@ -22,6 +22,7 @@ function LocationInfo({ setLocationData }) {
         setLocationData({
           latitude: parseFloat(latitude),
           longitude: parseFloat(longitude),
+          timezone: timezone
         });
       } catch (error) {
         console.error("Error fetching IP location:", error);

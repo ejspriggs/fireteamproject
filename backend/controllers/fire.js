@@ -13,7 +13,7 @@ router.get('/lat-lng', (req, res) => {
       },
     })
     .then((response) => {
-      console.log(response.data);
+    //   console.log(response.data);
       res.json(response.data);
     })
     .catch((error) => {
@@ -32,7 +32,7 @@ router.get('/place', (req, res) => {
       },
     })
     .then((response) => {
-      console.log(response.data);
+    //   console.log(response.data);
       res.json(response.data);
     })
     .catch((error) => {

@@ -21,6 +21,7 @@ const predefinedLocations = [
     country: "US",
     latitude: 37.7749,
     longitude: -122.4194,
+    timezone: "America/Los_Angeles"
   },
   {
     name: "Lake House",
@@ -29,6 +30,7 @@ const predefinedLocations = [
     country: "US",
     latitude: 38.9399,
     longitude: -119.9772,
+    timezone: "America/Los_Angeles"
   },
   {
     name: "Dorm",
@@ -37,6 +39,7 @@ const predefinedLocations = [
     country: "US",
     latitude: 39.7392,
     longitude: -104.9903,
+    timezone: "America/Denver"
   },
   {
     name: "Grandma",
@@ -45,6 +48,7 @@ const predefinedLocations = [
     country: "UK",
     latitude: 51.5074,
     longitude: -0.1278,
+    timezone: "Europe/London"
   },
 ];
 
@@ -53,6 +57,7 @@ function App() {
   const [locationData, setLocationData] = useState({
     latitude: null,
     longitude: null,
+    timezone: null
   });
   const [fireData, setFireData] = useState([]);
   const [alertMessage, setAlertMessage] = useState("");
@@ -65,12 +70,13 @@ function App() {
 
   const handleLocationSelect = (location) => {
     if (location.name === "My Location") {
-      setLocationData({ latitude: null, longitude: null });
+      setLocationData({ latitude: null, longitude: null, timezone: null });
     } else {
       setSelectedLocation(location.name);
       setLocationData({
         latitude: location.latitude,
         longitude: location.longitude,
+        timezone: location.timezone
       });
     }
   };
@@ -78,7 +84,7 @@ function App() {
   useEffect(() => {
     const fetchFireAlert = async () => {
       try {
-        const response = await axios.get("/fire-alerts");
+        const response = await axios.get("/api/fire/fire-alerts");
         const fireData = response.data;
         if (fireData) {
           setAlertMessage("Fire Alert in this Area!");
@@ -101,7 +107,6 @@ function App() {
               lng: locationData.longitude,
             },
           });
-          console.log("Fire Data Response:", response.data); 
           if (response.data && response.data.data) {
             setFireData(response.data.data); 
           } else {
@@ -136,7 +141,7 @@ function App() {
           {location.city}, {location.region}, {location.country}
         </p>
         <Temperature latitude={location.latitude} longitude={location.longitude} />
-        <HourlyForecast latitude={location.latitude} longitude={location.longitude} />
+        <HourlyForecast latitude={location.latitude} longitude={location.longitude} timezone={location.timezone}/>
         <Map latitude={location.latitude} longitude={location.longitude} fireData={fireData} />
       </div>
     );
@@ -170,7 +175,7 @@ function App() {
               {locationData.latitude && locationData.longitude && (
                 <>
                   <Temperature latitude={locationData.latitude} longitude={locationData.longitude} />
-                  <HourlyForecast latitude={locationData.latitude} longitude={locationData.longitude} />
+                  <HourlyForecast latitude={locationData.latitude} longitude={locationData.longitude} timezone={locationData.timezone} />
                   <Map latitude={locationData.latitude} longitude={locationData.longitude} fireData={fireData} />
                 </>
               )}

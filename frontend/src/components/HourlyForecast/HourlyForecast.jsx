@@ -285,59 +285,38 @@ const weatherTypeDescriptions = {
   },
 };
 
-function HourlyForecast({ latitude, longitude }) {
-	const [forecastData, setForecastData] = useState({
-	  loaded: false,
-	  data: [],
-	});
-  
+function HourlyForecast({ latitude, longitude, timezone }) {
+	const [forecastData, setForecastData] = useState([]);
+
 	const fetchForecast = async () => {
 	  try {
-		const q = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,weather_code&timezone=auto&temperature_unit=fahrenheit&forecast_days=3`;
+		const q = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,weather_code&timezone=${timezone}&temperature_unit=fahrenheit&forecast_days=3`;
+        console.log(q);
 		const response = await axios.get(q);
-  
-		const hourlyData = response.data.hourly;
-		const timezoneOffsetInHours = longitude / 15;
-  
-		const forecastIndices = [0, 2, 4, 6, 8];
-  
-		const forecast = forecastIndices.map((index) => {
-		  const time = new Date(hourlyData.time[index] + "Z");
-  
-		  const localTime = new Date(time.getTime() + timezoneOffsetInHours * 3600 * 1000);
-  
-		  const timeFormatted = localTime.toLocaleTimeString("en-US", {
-			hour: "numeric",
-			hour12: true,
-		  });
-  
-		  const weatherCode = hourlyData.weather_code[index].toString();
-		  const weatherIcon = weatherTypeDescriptions[weatherCode]?.day?.image || "";
-  
-		  return {
-			time: timeFormatted,
-			iconUrl: weatherIcon,
-			temp: Math.round(hourlyData.temperature_2m[index]),
-		  };
-		});
-  
-		setForecastData({ loaded: true, data: forecast });
+        const currentHour = new Date().getHours() + 1;
+        const indices = [currentHour, currentHour + 2, currentHour + 4, currentHour + 6, currentHour + 8];
+        const fd = indices.map((index) => ({
+            time:  new Date(response.data.hourly.time[index]).toLocaleTimeString('en-US', {timeZone: timezone, hour: 'numeric', hour12: true}),
+            iconUrl: weatherTypeDescriptions[String(response.data.hourly.weather_code[index])].day.image,
+            temp: Math.round(response.data.hourly.temperature_2m[index])
+        }));
+        setForecastData(fd);
 	  } catch (error) {
 		console.error("Error fetching weather data:", error);
 	  }
 	};
   
 	useEffect(() => {
-	  if (!forecastData.loaded && latitude !== null && longitude !== null) {
+	  if (latitude !== null && longitude !== null && timezone !== null) {
 		fetchForecast();
 	  }
-	}, [latitude, longitude]);
+	}, [latitude, longitude, timezone]);
   
 	return (
 		<div className="hourly-forecast">
 		  <h3>Forecast</h3>
 		  <div className="hourly-grid">
-			{forecastData.data.map((hour, index) => (
+			{forecastData.map((hour, index) => (
 			  <div className="hour" key={index}>
 				<p>{hour.time}</p>
 				<p>
